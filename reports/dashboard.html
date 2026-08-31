@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subaru Panamá | Dashboard Ejecutivo (2018-2023)</title>
+    <!-- Plotly CDN -->
+    <script src="https://cdn.plot.ly/plotly-2.30.0.min.js"></script>
+    <style>
+        :root {
+            --bg-app: #f8fafc;
+            --bg-sidebar: #ffffff;
+            --bg-card: #ffffff;
+            --border-ui: #e2e8f0;
+            --border-hover: #cbd5e1;
+            
+            --subaru-blue: #003399;
+            --subaru-blue-light: #0148a4;
+            --subaru-blue-soft: #eff6ff;
+            --accent-orange: #f97316;
+            --accent-emerald: #10b981;
+            
+            --text-title: #0f172a;
+            --text-body: #334155;
+            --text-muted: #64748b;
+            
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            --shadow-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
+            
+            --radius-xl: 16px;
+            --radius-lg: 12px;
+            --radius-md: 8px;
+        }
+
+        html, body {
+            scroll-behavior: smooth;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-app);
+            color: var(--text-body);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+        }
+
+        /* =========================================================
+           1. SIDEBAR FIJO (IZQUIERDA)
+           ========================================================= */
+        aside.sidebar {
+            width: 270px;
+            background-color: var(--bg-sidebar);
+            border-right: 1px solid var(--border-ui);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 30px 20px;
+            flex-shrink: 0;
+            height: 100vh;
+        }
+
+        .brand-logo-box {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            padding-bottom: 24px;
+            border-bottom: 1px solid var(--border-ui);
+        }
+
+        .brand-logo-box img {
+            max-height: 46px;
+            max-width: 170px;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .nav-group-title {
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-muted);
+            margin: 28px 0 12px 6px;
+        }
+
+        .nav-menu {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .nav-item a {
+            display: flex;
+            align-items: center;
+            padding: 12px 14px;
+            border-radius: var(--radius-md);
+            text-decoration: none;
+            color: var(--text-body);
+            font-size: 0.88rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .nav-item a:hover {
+            background-color: var(--subaru-blue-soft);
+            color: var(--subaru-blue);
+        }
+
+        .sidebar-footer-card {
+            background: linear-gradient(135deg, var(--subaru-blue) 0%, var(--subaru-blue-light) 100%);
+            border-radius: var(--radius-lg);
+            padding: 16px;
+            color: #ffffff;
+        }
+
+        .sidebar-footer-card h4 {
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .sidebar-footer-card p {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.85);
+            line-height: 1.4;
+        }
+
+        /* =========================================================
+           2. PANEL PRINCIPAL (DERECHA CON SCROLL INDEPENDIENTE)
+           ========================================================= */
+        main.main-content {
+            flex: 1;
+            height: 100vh;
+            overflow-y: auto;
+            scroll-behavior: smooth;
+            padding: 36px 40px 80px 40px;
+        }
+
+        /* Header Superior */
+        .top-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 32px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .header-title-block h1 {
+            font-size: 1.85rem;
+            font-weight: 800;
+            color: var(--text-title);
+            letter-spacing: -0.02em;
+        }
+
+        .header-title-block p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-top: 4px;
+        }
+
+        .badge-pill {
+            background-color: var(--subaru-blue-soft);
+            color: var(--subaru-blue);
+            border: 1px solid rgba(0, 51, 153, 0.15);
+            padding: 6px 14px;
+            border-radius: 9999px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* =========================================================
+           3. KPI METRIC CARDS
+           ========================================================= */
+        .kpi-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .kpi-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-ui);
+            border-radius: var(--radius-xl);
+            padding: 22px;
+            box-shadow: var(--shadow-card);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hover);
+            border-color: var(--border-hover);
+        }
+
+        .kpi-tag {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+
+        .kpi-num {
+            font-size: 1.9rem;
+            font-weight: 800;
+            color: var(--text-title);
+            line-height: 1.1;
+        }
+
+        .kpi-foot {
+            font-size: 0.82rem;
+            color: var(--subaru-blue);
+            font-weight: 600;
+            margin-top: 6px;
+        }
+
+        /* =========================================================
+           4. SECCIONES Y CONTENEDORES DE GRÁFICOS
+           ========================================================= */
+        .section-wrapper {
+            margin-bottom: 48px;
+            scroll-margin-top: 24px;
+        }
+
+        .section-heading {
+            margin-bottom: 18px;
+        }
+
+        .section-badge {
+            font-size: 0.72rem;
+            color: var(--accent-orange);
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .section-heading h2 {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: var(--text-title);
+            margin: 2px 0 6px 0;
+        }
+
+        .section-heading p {
+            font-size: 0.92rem;
+            color: var(--text-muted);
+            max-width: 950px;
+            line-height: 1.5;
+        }
+
+        .charts-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(460px, 1fr));
+            gap: 22px;
+            width: 100%;
+        }
+
+        @media (max-width: 1024px) {
+            .charts-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .chart-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-ui);
+            border-radius: var(--radius-xl);
+            padding: 20px;
+            box-shadow: var(--shadow-card);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-width: 0;
+            min-height: 460px;
+            width: 100%;
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+
+        .chart-wrapper {
+            width: 100% !important;
+            flex: 1;
+            min-height: 400px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .chart-wrapper .plotly-graph-div {
+            width: 100% !important;
+            height: 100% !important;
+            min-height: 400px;
+        }
+
+        .chart-footer-insight {
+            margin-top: 14px;
+            padding-top: 12px;
+            border-top: 1px solid var(--border-ui);
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            line-height: 1.45;
+        }
+
+        .chart-footer-insight strong {
+            color: var(--text-title);
+        }
+
+        /* Footer */
+        footer.app-footer {
+            margin-top: 48px;
+            border-top: 1px solid var(--border-ui);
+            padding-top: 20px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 1. SIDEBAR FIJO -->
+    <aside class="sidebar">
+        <div>
+            <div class="brand-logo-box">
+                <img src="../assets/Subaru_logo.svg" alt="Subaru Logo" onerror="this.style.display='none'; document.getElementById('subaru-fallback').style.display='block';">
+                <h3 id="subaru-fallback" style="display:none; font-weight:800; color:var(--subaru-blue); letter-spacing:-0.03em;">SUBARU</h3>
+            </div>
+
+            <div class="nav-group-title">Navegación Ejecutiva</div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="#seccion-1" class="nav-link">01. Panorama General</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#seccion-2" class="nav-link">02. Posicionamiento Subaru</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#seccion-3" class="nav-link">03. Rendimiento de Modelos</a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="sidebar-footer-card">
+            <h4>Informe de Mercado</h4>
+            <p>Datos oficiales consolidados de la industria automotriz en Panamá (2018 - 2023).</p>
+        </div>
+    </aside>
+
+    <!-- 2. PANEL PRINCIPAL DE CONTENIDOS -->
+    <main class="main-content" id="main-container">
+        
+        <!-- Header -->
+        <header class="top-header">
+            <div class="header-title-block">
+                <h1>Tablero de Inteligencia Comercial</h1>
+                <p>Monitoreo Estratégico de Industria, Participación de Mercado y Portafolio Subaru</p>
+            </div>
+            <div>
+                <span class="badge-pill">Período 2018 - 2023</span>
+            </div>
+        </header>
+
+        <!-- KPI Cards -->
+        <section class="kpi-container">
+            <div class="kpi-card">
+                <div class="kpi-tag">Volumen Total Industria</div>
+                <div class="kpi-num">251,742</div>
+                <div class="kpi-foot">2018 - 2023 (6 Años)</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-tag">Ventas Totales Subaru</div>
+                <div class="kpi-num">1,350</div>
+                <div class="kpi-foot">0.54% de Cuota Acumulada</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-tag">Pico de Cuota Anual</div>
+                <div class="kpi-num">0.71%</div>
+                <div class="kpi-foot">Alcanzado en el Año 2020</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-tag">Modelo Pilar (Top 1)</div>
+                <div class="kpi-num">FORESTER</div>
+                <div class="kpi-foot">735 uds (54.4% del Mix)</div>
+            </div>
+        </section>
+
+        <!-- SECCIÓN 1: MARKET OVERVIEW -->
+        <section class="section-wrapper" id="seccion-1">
+            <div class="section-heading">
+                <span class="section-badge">Sección 01</span>
+                <h2>Panorama General del Mercado Automotriz</h2>
+                <p>
+                    El mercado panameño totalizó 251,742 unidades en el período analizado. Tras la contracción de 2020 (24,091 unidades), la industria mostró una recuperación sostenida hasta situarse en 48,918 unidades en 2023. Las tres primeras marcas acumulan más del 49% de concentración del mercado.
+                </p>
+            </div>
+            <div class="charts-row">
+                <div class="chart-card">
+                    <div class="chart-wrapper">
+                        <div style="height:400px; width:100%;">                            <div id="fc49f4d2-0cf7-4777-90ef-cba215b18fe4" class="plotly-graph-div" style="height:100%; width:100%;"></div>            <script>                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("fc49f4d2-0cf7-4777-90ef-cba215b18fe4")) {                    Plotly.newPlot(                        "fc49f4d2-0cf7-4777-90ef-cba215b18fe4",                        [{"hovertemplate":"\u003cb\u003eA\u00f1o %{x}\u003c\u002fb\u003e\u003cbr\u003eVolumen: %{y:,.0f} unidades\u003cextra\u003e\u003c\u002fextra\u003e","marker":{"color":"#003399","line":{"color":"#0148A4","width":1}},"name":"Unidades Anuales","text":["50,905","47,529","24,091","38,131","42,168","48,918"],"textfont":{"color":"#0f172a","family":"system-ui, sans-serif","size":11},"textposition":"outside","x":{"dtype":"i2","bdata":"4gfjB+QH5QfmB+cH"},"y":{"dtype":"i4","bdata":"2cYAAKm5AAAbXgAA85QAALikAAAWvwAA"},"type":"bar"}],                        {"template":{"data":{"histogram2dcontour":[{"type":"histogram2dcontour","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"choropleth":[{"type":"choropleth","colorbar":{"outlinewidth":0,"ticks":""}}],"histogram2d":[{"type":"histogram2d","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"heatmap":[{"type":"heatmap","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"contourcarpet":[{"type":"contourcarpet","colorbar":{"outlinewidth":0,"ticks":""}}],"contour":[{"type":"contour","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"surface":[{"type":"surface","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"mesh3d":[{"type":"mesh3d","colorbar":{"outlinewidth":0,"ticks":""}}],"scatter":[{"fillpattern":{"fillmode":"overlay","size":10,"solidity":0.2},"type":"scatter"}],"parcoords":[{"type":"parcoords","line":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterpolargl":[{"type":"scatterpolargl","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"bar":[{"error_x":{"color":"#2a3f5f"},"error_y":{"color":"#2a3f5f"},"marker":{"line":{"color":"#E5ECF6","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"scattergeo":[{"type":"scattergeo","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterpolar":[{"type":"scatterpolar","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"scattergl":[{"type":"scattergl","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatter3d":[{"type":"scatter3d","line":{"colorbar":{"outlinewidth":0,"ticks":""}},"marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattermap":[{"type":"scattermap","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterternary":[{"type":"scatterternary","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattercarpet":[{"type":"scattercarpet","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"carpet":[{"aaxis":{"endlinecolor":"#2a3f5f","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"#2a3f5f"},"baxis":{"endlinecolor":"#2a3f5f","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"#2a3f5f"},"type":"carpet"}],"table":[{"cells":{"fill":{"color":"#EBF0F8"},"line":{"color":"white"}},"header":{"fill":{"color":"#C8D4E3"},"line":{"color":"white"}},"type":"table"}],"barpolar":[{"marker":{"line":{"color":"#E5ECF6","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"pie":[{"automargin":true,"type":"pie"}]},"layout":{"autotypenumbers":"strict","colorway":["#636efa","#EF553B","#00cc96","#ab63fa","#FFA15A","#19d3f3","#FF6692","#B6E880","#FF97FF","#FECB52"],"font":{"color":"#2a3f5f"},"hovermode":"closest","hoverlabel":{"align":"left"},"paper_bgcolor":"white","plot_bgcolor":"#E5ECF6","polar":{"bgcolor":"#E5ECF6","angularaxis":{"gridcolor":"white","linecolor":"white","ticks":""},"radialaxis":{"gridcolor":"white","linecolor":"white","ticks":""}},"ternary":{"bgcolor":"#E5ECF6","aaxis":{"gridcolor":"white","linecolor":"white","ticks":""},"baxis":{"gridcolor":"white","linecolor":"white","ticks":""},"caxis":{"gridcolor":"white","linecolor":"white","ticks":""}},"coloraxis":{"colorbar":{"outlinewidth":0,"ticks":""}},"colorscale":{"sequential":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"sequentialminus":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"diverging":[[0,"#8e0152"],[0.1,"#c51b7d"],[0.2,"#de77ae"],[0.3,"#f1b6da"],[0.4,"#fde0ef"],[0.5,"#f7f7f7"],[0.6,"#e6f5d0"],[0.7,"#b8e186"],[0.8,"#7fbc41"],[0.9,"#4d9221"],[1,"#276419"]]},"xaxis":{"gridcolor":"white","linecolor":"white","ticks":"","title":{"standoff":15},"zerolinecolor":"white","automargin":true,"zerolinewidth":2},"yaxis":{"gridcolor":"white","linecolor":"white","ticks":"","title":{"standoff":15},"zerolinecolor":"white","automargin":true,"zerolinewidth":2},"scene":{"xaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2},"yaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2},"zaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2}},"shapedefaults":{"line":{"color":"#2a3f5f"}},"annotationdefaults":{"arrowcolor":"#2a3f5f","arrowhead":0,"arrowwidth":1},"geo":{"bgcolor":"white","landcolor":"#E5ECF6","subunitcolor":"white","showland":true,"showlakes":true,"lakecolor":"white"},"title":{"x":0.05}}},"title":{"font":{"size":14,"color":"#0f172a","family":"system-ui, -apple-system, sans-serif"},"text":"\u003cb\u003eEvoluci\u00f3n Anual del Mercado Total (2018 - 2023)\u003c\u002fb\u003e","x":0.01,"y":0.98},"font":{"color":"#64748b","family":"system-ui, -apple-system, sans-serif","size":11},"margin":{"l":50,"r":30,"t":55,"b":50},"hoverlabel":{"font":{"size":12,"color":"#0f172a","family":"system-ui, sans-serif"},"bgcolor":"#ffffff","bordercolor":"#e2e8f0"},"autosize":true,"height":400,"paper_bgcolor":"rgba(0,0,0,0)","plot_bgcolor":"rgba(0,0,0,0)","xaxis":{"tickfont":{"color":"#64748b"},"gridcolor":"#e2e8f0","zerolinecolor":"#e2e8f0","dtick":1},"yaxis":{"tickfont":{"color":"#64748b"},"gridcolor":"#e2e8f0","zerolinecolor":"#e2e8f0","title":{"text":"Unidades Vendidas"},"range":[0,60067.899999999994]}},                        {"responsive": true, "displayModeBar": false, "showTips": false}                    )                };            </script>        </div>
+                    </div>
+                    <div class="chart-footer-insight">
+                        <strong>Evolución:</strong> Crecimiento continuo en ventas durante el trienio 2021-2023.
+                    </div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-wrapper">
+                        <div style="height:400px; width:100%;">                            <div id="5d648f94-4886-4993-ac30-c5686627b82f" class="plotly-graph-div" style="height:100%; width:100%;"></div>            <script>                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("5d648f94-4886-4993-ac30-c5686627b82f")) {                    Plotly.newPlot(                        "5d648f94-4886-4993-ac30-c5686627b82f",                        [{"customdata":{"dtype":"f8","bdata":"WgUXBz6CBkAUV4\u002fuMIsGQAjNWwHcfQtAkfSajSkfEkAZEHucG4gSQEDT\u002fLY0jxxAZKJVqctZI0A9Coogz4EpQL6T001aIS9AEQNVF9A7NUA="},"hovertemplate":"\u003cb\u003e%{y}\u003c\u002fb\u003e\u003cbr\u003eVentas: %{x:,.0f} unidades\u003cbr\u003eCuota: %{customdata:.2f}%\u003cextra\u003e\u003c\u002fextra\u003e","marker":{"color":"#0148A4","line":{"color":"#003399","width":1}},"orientation":"h","text":["7,083 (2.8%)","7,094 (2.8%)","8,651 (3.4%)","11,405 (4.5%)","11,663 (4.6%)","17,974 (7.1%)","24,357 (9.7%)","32,106 (12.8%)","39,184 (15.6%)","53,454 (21.2%)"],"textfont":{"color":"#0f172a","family":"system-ui, sans-serif","size":10},"textposition":"outside","x":{"dtype":"i4","bdata":"qxsAALYbAADLIQAAjSwAAI8tAAA2RgAAJV8AAGp9AAAQmQAAztAAAA=="},"y":["FORD","ISUZU","CHEVROLET","MITSUBISHI","HONDA","SUZUKI","NISSAN","KIA","HYUNDAI","TOYOTA"],"type":"bar"}],                        {"template":{"data":{"histogram2dcontour":[{"type":"histogram2dcontour","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"choropleth":[{"type":"choropleth","colorbar":{"outlinewidth":0,"ticks":""}}],"histogram2d":[{"type":"histogram2d","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"heatmap":[{"type":"heatmap","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"contourcarpet":[{"type":"contourcarpet","colorbar":{"outlinewidth":0,"ticks":""}}],"contour":[{"type":"contour","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"surface":[{"type":"surface","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"mesh3d":[{"type":"mesh3d","colorbar":{"outlinewidth":0,"ticks":""}}],"scatter":[{"fillpattern":{"fillmode":"overlay","size":10,"solidity":0.2},"type":"scatter"}],"parcoords":[{"type":"parcoords","line":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterpolargl":[{"type":"scatterpolargl","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"bar":[{"error_x":{"color":"#2a3f5f"},"error_y":{"color":"#2a3f5f"},"marker":{"line":{"color":"#E5ECF6","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"scattergeo":[{"type":"scattergeo","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterpolar":[{"type":"scatterpolar","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"scattergl":[{"type":"scattergl","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatter3d":[{"type":"scatter3d","line":{"colorbar":{"outlinewidth":0,"ticks":""}},"marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattermap":[{"type":"scattermap","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterternary":[{"type":"scatterternary","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattercarpet":[{"type":"scattercarpet","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"carpet":[{"aaxis":{"endlinecolor":"#2a3f5f","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"#2a3f5f"},"baxis":{"endlinecolor":"#2a3f5f","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"#2a3f5f"},"type":"carpet"}],"table":[{"cells":{"fill":{"color":"#EBF0F8"},"line":{"color":"white"}},"header":{"fill":{"color":"#C8D4E3"},"line":{"color":"white"}},"type":"table"}],"barpolar":[{"marker":{"line":{"color":"#E5ECF6","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"pie":[{"automargin":true,"type":"pie"}]},"layout":{"autotypenumbers":"strict","colorway":["#636efa","#EF553B","#00cc96","#ab63fa","#FFA15A","#19d3f3","#FF6692","#B6E880","#FF97FF","#FECB52"],"font":{"color":"#2a3f5f"},"hovermode":"closest","hoverlabel":{"align":"left"},"paper_bgcolor":"white","plot_bgcolor":"#E5ECF6","polar":{"bgcolor":"#E5ECF6","angularaxis":{"gridcolor":"white","linecolor":"white","ticks":""},"radialaxis":{"gridcolor":"white","linecolor":"white","ticks":""}},"ternary":{"bgcolor":"#E5ECF6","aaxis":{"gridcolor":"white","linecolor":"white","ticks":""},"baxis":{"gridcolor":"white","linecolor":"white","ticks":""},"caxis":{"gridcolor":"white","linecolor":"white","ticks":""}},"coloraxis":{"colorbar":{"outlinewidth":0,"ticks":""}},"colorscale":{"sequential":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"sequentialminus":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"diverging":[[0,"#8e0152"],[0.1,"#c51b7d"],[0.2,"#de77ae"],[0.3,"#f1b6da"],[0.4,"#fde0ef"],[0.5,"#f7f7f7"],[0.6,"#e6f5d0"],[0.7,"#b8e186"],[0.8,"#7fbc41"],[0.9,"#4d9221"],[1,"#276419"]]},"xaxis":{"gridcolor":"white","linecolor":"white","ticks":"","title":{"standoff":15},"zerolinecolor":"white","automargin":true,"zerolinewidth":2},"yaxis":{"gridcolor":"white","linecolor":"white","ticks":"","title":{"standoff":15},"zerolinecolor":"white","automargin":true,"zerolinewidth":2},"scene":{"xaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2},"yaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2},"zaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2}},"shapedefaults":{"line":{"color":"#2a3f5f"}},"annotationdefaults":{"arrowcolor":"#2a3f5f","arrowhead":0,"arrowwidth":1},"geo":{"bgcolor":"white","landcolor":"#E5ECF6","subunitcolor":"white","showland":true,"showlakes":true,"lakecolor":"white"},"title":{"x":0.05}}},"title":{"font":{"size":14,"color":"#0f172a","family":"system-ui, -apple-system, sans-serif"},"text":"\u003cb\u003eTop 10 Marcas con Mayor Volumen Acumulado\u003c\u002fb\u003e","x":0.01,"y":0.98},"font":{"color":"#64748b","family":"system-ui, -apple-system, sans-serif","size":11},"margin":{"l":50,"r":30,"t":55,"b":50},"hoverlabel":{"font":{"size":12,"color":"#0f172a","family":"system-ui, sans-serif"},"bgcolor":"#ffffff","bordercolor":"#e2e8f0"},"autosize":true,"height":400,"paper_bgcolor":"rgba(0,0,0,0)","plot_bgcolor":"rgba(0,0,0,0)","xaxis":{"tickfont":{"color":"#64748b"},"gridcolor":"#e2e8f0","zerolinecolor":"#e2e8f0","title":{"text":"Unidades Totales"},"range":[0,66817.5]},"yaxis":{"tickfont":{"color":"#64748b"},"gridcolor":"#e2e8f0","zerolinecolor":"#e2e8f0"}},                        {"responsive": true, "displayModeBar": false, "showTips": false}                    )                };            </script>        </div>
+                    </div>
+                    <div class="chart-footer-insight">
+                        <strong>Concentración:</strong> Toyota lidera el mercado con 53,454 unidades (21.2%), seguida de Hyundai (15.6%) y Kia (12.8%).
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECCIÓN 2: SUBARU POSITION -->
+        <section class="section-wrapper" id="seccion-2">
+            <div class="section-heading">
+                <span class="section-badge">Sección 02</span>
+                <h2>Posicionamiento y Dinámica de Subaru</h2>
+                <p>
+                    Subaru acumuló 1,350 unidades (#22 histórico). En 2020 registró su máxima cuota de mercado relativa (0.71%). En 2022 tocó su punto mínimo de participación (0.37%), repuntando en 2023 con un incremento del +47.4% (230 unidades y 0.47% de cuota de mercado).
+                </p>
+            </div>
+            <div class="charts-row">
+                <div class="chart-card">
+                    <div class="chart-wrapper">
+                        <div style="height:400px; width:100%;">                            <div id="f325b97a-6920-49ea-831a-7ce90a262bfe" class="plotly-graph-div" style="height:100%; width:100%;"></div>            <script>                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("f325b97a-6920-49ea-831a-7ce90a262bfe")) {                    Plotly.newPlot(                        "f325b97a-6920-49ea-831a-7ce90a262bfe",                        [{"hovertemplate":"\u003cb\u003eMercado\u003c\u002fb\u003e (A\u00f1o %{x})\u003cbr\u003e\u00cdndice: %{y:.1f}\u003cextra\u003e\u003c\u002fextra\u003e","line":{"color":"#64748b","width":2.5},"marker":{"color":"#64748b","size":7},"mode":"lines+markers+text","name":"Mercado Total","text":["100.0","93.4","47.3","74.9","82.8","96.1"],"textfont":{"color":"#64748b","size":10},"textposition":"top center","x":{"dtype":"i2","bdata":"4gfjB+QH5QfmB+cH"},"y":{"dtype":"f8","bdata":"AAAAAAAAWUBInV3xjVdXQOKHlAmnqUdAe5QjJf+5UkBwq8bHi7VUQHf+GIYvBlhA"},"type":"scatter"},{"hovertemplate":"\u003cb\u003eSubaru\u003c\u002fb\u003e (A\u00f1o %{x})\u003cbr\u003e\u00cdndice: %{y:.1f}\u003cextra\u003e\u003c\u002fextra\u003e","line":{"color":"#f97316","width":3},"marker":{"color":"#f97316","size":9},"mode":"lines+markers+text","name":"Subaru","text":["100.0","115.0","65.8","90.0","60.0","88.5"],"textfont":{"color":"#f97316","size":11},"textposition":"bottom center","x":{"dtype":"i2","bdata":"4gfjB+QH5QfmB+cH"},"y":{"dtype":"f8","bdata":"AAAAAAAAWUD\u002f\u002f\u002f\u002f\u002f\u002f79cQBQ7sRM7cVBAAAAAAACAVkAAAAAAAABOQNiJndiJHVZA"},"type":"scatter"}],                        {"template":{"data":{"histogram2dcontour":[{"type":"histogram2dcontour","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"choropleth":[{"type":"choropleth","colorbar":{"outlinewidth":0,"ticks":""}}],"histogram2d":[{"type":"histogram2d","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"heatmap":[{"type":"heatmap","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"contourcarpet":[{"type":"contourcarpet","colorbar":{"outlinewidth":0,"ticks":""}}],"contour":[{"type":"contour","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"surface":[{"type":"surface","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"mesh3d":[{"type":"mesh3d","colorbar":{"outlinewidth":0,"ticks":""}}],"scatter":[{"fillpattern":{"fillmode":"overlay","size":10,"solidity":0.2},"type":"scatter"}],"parcoords":[{"type":"parcoords","line":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterpolargl":[{"type":"scatterpolargl","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"bar":[{"error_x":{"color":"#2a3f5f"},"error_y":{"color":"#2a3f5f"},"marker":{"line":{"color":"#E5ECF6","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"scattergeo":[{"type":"scattergeo","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterpolar":[{"type":"scatterpolar","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"scattergl":[{"type":"scattergl","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatter3d":[{"type":"scatter3d","line":{"colorbar":{"outlinewidth":0,"ticks":""}},"marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattermap":[{"type":"scattermap","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterternary":[{"type":"scatterternary","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattercarpet":[{"type":"scattercarpet","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"carpet":[{"aaxis":{"endlinecolor":"#2a3f5f","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"#2a3f5f"},"baxis":{"endlinecolor":"#2a3f5f","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"#2a3f5f"},"type":"carpet"}],"table":[{"cells":{"fill":{"color":"#EBF0F8"},"line":{"color":"white"}},"header":{"fill":{"color":"#C8D4E3"},"line":{"color":"white"}},"type":"table"}],"barpolar":[{"marker":{"line":{"color":"#E5ECF6","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"pie":[{"automargin":true,"type":"pie"}]},"layout":{"autotypenumbers":"strict","colorway":["#636efa","#EF553B","#00cc96","#ab63fa","#FFA15A","#19d3f3","#FF6692","#B6E880","#FF97FF","#FECB52"],"font":{"color":"#2a3f5f"},"hovermode":"closest","hoverlabel":{"align":"left"},"paper_bgcolor":"white","plot_bgcolor":"#E5ECF6","polar":{"bgcolor":"#E5ECF6","angularaxis":{"gridcolor":"white","linecolor":"white","ticks":""},"radialaxis":{"gridcolor":"white","linecolor":"white","ticks":""}},"ternary":{"bgcolor":"#E5ECF6","aaxis":{"gridcolor":"white","linecolor":"white","ticks":""},"baxis":{"gridcolor":"white","linecolor":"white","ticks":""},"caxis":{"gridcolor":"white","linecolor":"white","ticks":""}},"coloraxis":{"colorbar":{"outlinewidth":0,"ticks":""}},"colorscale":{"sequential":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"sequentialminus":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"diverging":[[0,"#8e0152"],[0.1,"#c51b7d"],[0.2,"#de77ae"],[0.3,"#f1b6da"],[0.4,"#fde0ef"],[0.5,"#f7f7f7"],[0.6,"#e6f5d0"],[0.7,"#b8e186"],[0.8,"#7fbc41"],[0.9,"#4d9221"],[1,"#276419"]]},"xaxis":{"gridcolor":"white","linecolor":"white","ticks":"","title":{"standoff":15},"zerolinecolor":"white","automargin":true,"zerolinewidth":2},"yaxis":{"gridcolor":"white","linecolor":"white","ticks":"","title":{"standoff":15},"zerolinecolor":"white","automargin":true,"zerolinewidth":2},"scene":{"xaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2},"yaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2},"zaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2}},"shapedefaults":{"line":{"color":"#2a3f5f"}},"annotationdefaults":{"arrowcolor":"#2a3f5f","arrowhead":0,"arrowwidth":1},"geo":{"bgcolor":"white","landcolor":"#E5ECF6","subunitcolor":"white","showland":true,"showlakes":true,"lakecolor":"white"},"title":{"x":0.05}}},"shapes":[{"line":{"color":"#e2e8f0","dash":"dash","width":1.5},"type":"line","x0":2018,"x1":2023,"y0":100,"y1":100}],"title":{"font":{"size":14,"color":"#0f172a","family":"system-ui, -apple-system, sans-serif"},"text":"\u003cb\u003eRendimiento Relativo Indexado (Base 2018 = 100)\u003c\u002fb\u003e","x":0.01,"y":0.98},"font":{"color":"#64748b","family":"system-ui, -apple-system, sans-serif","size":11},"margin":{"l":50,"r":30,"t":55,"b":65},"hoverlabel":{"font":{"size":12,"color":"#0f172a","family":"system-ui, sans-serif"},"bgcolor":"#ffffff","bordercolor":"#e2e8f0"},"autosize":true,"height":400,"paper_bgcolor":"rgba(0,0,0,0)","plot_bgcolor":"rgba(0,0,0,0)","xaxis":{"tickfont":{"color":"#64748b"},"gridcolor":"#e2e8f0","zerolinecolor":"#e2e8f0","dtick":1},"yaxis":{"tickfont":{"color":"#64748b"},"gridcolor":"#e2e8f0","zerolinecolor":"#e2e8f0","title":{"text":"\u00cdndice (Base 100)"}},"legend":{"font":{"size":11,"color":"#0f172a"},"orientation":"h","y":-0.2,"x":0.5,"xanchor":"center"}},                        {"responsive": true, "displayModeBar": false, "showTips": false}                    )                };            </script>        </div>
+                    </div>
+                    <div class="chart-footer-insight">
+                        <strong>Lectura Indexada (Base 2018=100):</strong> En 2019 (+15.0%) y 2023 (+47.4%) el ritmo de avance de Subaru superó la media del mercado.
+                    </div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-wrapper">
+                        <div style="height:400px; width:100%;">                            <div id="e608ed21-e0b7-424d-81b4-2fc4ff58f458" class="plotly-graph-div" style="height:100%; width:100%;"></div>            <script>                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("e608ed21-e0b7-424d-81b4-2fc4ff58f458")) {                    Plotly.newPlot(                        "e608ed21-e0b7-424d-81b4-2fc4ff58f458",                        [{"hovertemplate":"\u003cb\u003eSubaru %{x}\u003c\u002fb\u003e\u003cbr\u003eVolumen: %{y:,.0f} uds\u003cextra\u003e\u003c\u002fextra\u003e","marker":{"color":"#003399"},"name":"Unidades Subaru","x":{"dtype":"i2","bdata":"4gfjB+QH5QfmB+cH"},"y":{"dtype":"i2","bdata":"BAErAasA6gCcAOYA"},"type":"bar","xaxis":"x","yaxis":"y"},{"hovertemplate":"\u003cb\u003eCuota %{x}\u003c\u002fb\u003e: %{y:.2f}%\u003cextra\u003e\u003c\u002fextra\u003e","line":{"color":"#f97316","width":3},"marker":{"color":"#f97316","size":8},"mode":"lines+markers+text","name":"Cuota de Mercado (%)","text":["0.51%","0.63%","0.71%","0.61%","0.37%","0.47%"],"textfont":{"color":"#f97316","size":10},"textposition":"top center","x":{"dtype":"i2","bdata":"4gfjB+QH5QfmB+cH"},"y":{"dtype":"f8","bdata":"+5gMjxtY4D+Xa9GHgCHkPxevGZ3AtuY\u002fex6seTej4z+cPOChPa3XP0DP1RxXF94\u002f"},"type":"scatter","xaxis":"x","yaxis":"y2"}],                        {"template":{"data":{"histogram2dcontour":[{"type":"histogram2dcontour","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"choropleth":[{"type":"choropleth","colorbar":{"outlinewidth":0,"ticks":""}}],"histogram2d":[{"type":"histogram2d","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"heatmap":[{"type":"heatmap","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"contourcarpet":[{"type":"contourcarpet","colorbar":{"outlinewidth":0,"ticks":""}}],"contour":[{"type":"contour","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"surface":[{"type":"surface","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"mesh3d":[{"type":"mesh3d","colorbar":{"outlinewidth":0,"ticks":""}}],"scatter":[{"fillpattern":{"fillmode":"overlay","size":10,"solidity":0.2},"type":"scatter"}],"parcoords":[{"type":"parcoords","line":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterpolargl":[{"type":"scatterpolargl","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"bar":[{"error_x":{"color":"#2a3f5f"},"error_y":{"color":"#2a3f5f"},"marker":{"line":{"color":"#E5ECF6","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"scattergeo":[{"type":"scattergeo","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterpolar":[{"type":"scatterpolar","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"scattergl":[{"type":"scattergl","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatter3d":[{"type":"scatter3d","line":{"colorbar":{"outlinewidth":0,"ticks":""}},"marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattermap":[{"type":"scattermap","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterternary":[{"type":"scatterternary","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattercarpet":[{"type":"scattercarpet","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"carpet":[{"aaxis":{"endlinecolor":"#2a3f5f","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"#2a3f5f"},"baxis":{"endlinecolor":"#2a3f5f","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"#2a3f5f"},"type":"carpet"}],"table":[{"cells":{"fill":{"color":"#EBF0F8"},"line":{"color":"white"}},"header":{"fill":{"color":"#C8D4E3"},"line":{"color":"white"}},"type":"table"}],"barpolar":[{"marker":{"line":{"color":"#E5ECF6","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"pie":[{"automargin":true,"type":"pie"}]},"layout":{"autotypenumbers":"strict","colorway":["#636efa","#EF553B","#00cc96","#ab63fa","#FFA15A","#19d3f3","#FF6692","#B6E880","#FF97FF","#FECB52"],"font":{"color":"#2a3f5f"},"hovermode":"closest","hoverlabel":{"align":"left"},"paper_bgcolor":"white","plot_bgcolor":"#E5ECF6","polar":{"bgcolor":"#E5ECF6","angularaxis":{"gridcolor":"white","linecolor":"white","ticks":""},"radialaxis":{"gridcolor":"white","linecolor":"white","ticks":""}},"ternary":{"bgcolor":"#E5ECF6","aaxis":{"gridcolor":"white","linecolor":"white","ticks":""},"baxis":{"gridcolor":"white","linecolor":"white","ticks":""},"caxis":{"gridcolor":"white","linecolor":"white","ticks":""}},"coloraxis":{"colorbar":{"outlinewidth":0,"ticks":""}},"colorscale":{"sequential":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"sequentialminus":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"diverging":[[0,"#8e0152"],[0.1,"#c51b7d"],[0.2,"#de77ae"],[0.3,"#f1b6da"],[0.4,"#fde0ef"],[0.5,"#f7f7f7"],[0.6,"#e6f5d0"],[0.7,"#b8e186"],[0.8,"#7fbc41"],[0.9,"#4d9221"],[1,"#276419"]]},"xaxis":{"gridcolor":"white","linecolor":"white","ticks":"","title":{"standoff":15},"zerolinecolor":"white","automargin":true,"zerolinewidth":2},"yaxis":{"gridcolor":"white","linecolor":"white","ticks":"","title":{"standoff":15},"zerolinecolor":"white","automargin":true,"zerolinewidth":2},"scene":{"xaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2},"yaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2},"zaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2}},"shapedefaults":{"line":{"color":"#2a3f5f"}},"annotationdefaults":{"arrowcolor":"#2a3f5f","arrowhead":0,"arrowwidth":1},"geo":{"bgcolor":"white","landcolor":"#E5ECF6","subunitcolor":"white","showland":true,"showlakes":true,"lakecolor":"white"},"title":{"x":0.05}}},"xaxis":{"anchor":"y","domain":[0.0,0.94],"tickfont":{"color":"#64748b"},"gridcolor":"#e2e8f0","zerolinecolor":"#e2e8f0","dtick":1},"yaxis":{"anchor":"x","domain":[0.0,1.0],"tickfont":{"color":"#64748b"},"gridcolor":"#e2e8f0","zerolinecolor":"#e2e8f0","title":{"text":"Unidades Subaru"},"range":[0,373.75]},"yaxis2":{"anchor":"x","overlaying":"y","side":"right","tickfont":{"color":"#64748b"},"gridcolor":"#e2e8f0","zerolinecolor":"#e2e8f0","title":{"text":"Market Share (%)"},"range":[0,0.9227512349010004],"showgrid":false},"title":{"font":{"size":14,"color":"#0f172a","family":"system-ui, -apple-system, sans-serif"},"text":"\u003cb\u003eVolumen y Participaci\u00f3n de Mercado de Subaru\u003c\u002fb\u003e","x":0.01,"y":0.98},"font":{"color":"#64748b","family":"system-ui, -apple-system, sans-serif","size":11},"margin":{"l":50,"r":45,"t":55,"b":65},"hoverlabel":{"font":{"size":12,"color":"#0f172a","family":"system-ui, sans-serif"},"bgcolor":"#ffffff","bordercolor":"#e2e8f0"},"autosize":true,"height":400,"paper_bgcolor":"rgba(0,0,0,0)","plot_bgcolor":"rgba(0,0,0,0)","legend":{"font":{"size":11,"color":"#0f172a"},"orientation":"h","y":-0.2,"x":0.5,"xanchor":"center"}},                        {"responsive": true, "displayModeBar": false, "showTips": false}                    )                };            </script>        </div>
+                    </div>
+                    <div class="chart-footer-insight">
+                        <strong>Recuperación:</strong> El rebote de 2023 recuperó 10 puntos básicos de cuota frente al cierre de 2022.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECCIÓN 3: SUBARU PRODUCT PERFORMANCE -->
+        <section class="section-wrapper" id="seccion-3">
+            <div class="section-heading">
+                <span class="section-badge">Sección 03</span>
+                <h2>Rendimiento de Portafolio y Transición de Modelos</h2>
+                <p>
+                    La estructura de ventas de Subaru se sustenta en su gama SUV. <strong>Forester</strong> es el pilar central con 735 unidades (54.4% del volumen histórico). En 2023 destaca la transición comercial de <strong>XV</strong> (10 unidades) hacia el nuevo <strong>Crosstrek</strong> (60 unidades).
+                </p>
+            </div>
+            <div class="charts-row">
+                <div class="chart-card">
+                    <div class="chart-wrapper">
+                        <div style="height:400px; width:100%;">                            <div id="5ed1a6fe-92aa-4f9b-8b10-208685b649db" class="plotly-graph-div" style="height:100%; width:100%;"></div>            <script>                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("5ed1a6fe-92aa-4f9b-8b10-208685b649db")) {                    Plotly.newPlot(                        "5ed1a6fe-92aa-4f9b-8b10-208685b649db",                        [{"hole":0.55,"hovertemplate":"\u003cb\u003e%{label}\u003c\u002fb\u003e\u003cbr\u003eUnidades: %{value:,.0f}\u003cbr\u003ePorcentaje: %{percent}\u003cextra\u003e\u003c\u002fextra\u003e","insidetextorientation":"radial","labels":["SUBARU FORESTER CAMIONETA","SUBARU XV CAMIONETA","SUBARU OUTBACK CAMIONETA","SUBARU CROSSTREK CAMIONETA","SUBARU WRX SEDAN","SUBARU EVOLTIS CAMIONETA","SUBARU IMPREZA SEDAN"],"marker":{"colors":["#003399","#0148A4","#0284c7","#f97316","#a855f7","#64748b","#cbd5e1"],"line":{"color":"#ffffff","width":2}},"textfont":{"color":"#0f172a","family":"system-ui, sans-serif","size":10},"textinfo":"label+percent","textposition":"outside","values":{"dtype":"i2","bdata":"3wKuAUwAPgAsAAIAAQA="},"type":"pie"}],                        {"template":{"data":{"histogram2dcontour":[{"type":"histogram2dcontour","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"choropleth":[{"type":"choropleth","colorbar":{"outlinewidth":0,"ticks":""}}],"histogram2d":[{"type":"histogram2d","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"heatmap":[{"type":"heatmap","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"contourcarpet":[{"type":"contourcarpet","colorbar":{"outlinewidth":0,"ticks":""}}],"contour":[{"type":"contour","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"surface":[{"type":"surface","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"mesh3d":[{"type":"mesh3d","colorbar":{"outlinewidth":0,"ticks":""}}],"scatter":[{"fillpattern":{"fillmode":"overlay","size":10,"solidity":0.2},"type":"scatter"}],"parcoords":[{"type":"parcoords","line":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterpolargl":[{"type":"scatterpolargl","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"bar":[{"error_x":{"color":"#2a3f5f"},"error_y":{"color":"#2a3f5f"},"marker":{"line":{"color":"#E5ECF6","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"scattergeo":[{"type":"scattergeo","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterpolar":[{"type":"scatterpolar","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"scattergl":[{"type":"scattergl","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatter3d":[{"type":"scatter3d","line":{"colorbar":{"outlinewidth":0,"ticks":""}},"marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattermap":[{"type":"scattermap","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterternary":[{"type":"scatterternary","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattercarpet":[{"type":"scattercarpet","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"carpet":[{"aaxis":{"endlinecolor":"#2a3f5f","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"#2a3f5f"},"baxis":{"endlinecolor":"#2a3f5f","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"#2a3f5f"},"type":"carpet"}],"table":[{"cells":{"fill":{"color":"#EBF0F8"},"line":{"color":"white"}},"header":{"fill":{"color":"#C8D4E3"},"line":{"color":"white"}},"type":"table"}],"barpolar":[{"marker":{"line":{"color":"#E5ECF6","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"pie":[{"automargin":true,"type":"pie"}]},"layout":{"autotypenumbers":"strict","colorway":["#636efa","#EF553B","#00cc96","#ab63fa","#FFA15A","#19d3f3","#FF6692","#B6E880","#FF97FF","#FECB52"],"font":{"color":"#2a3f5f"},"hovermode":"closest","hoverlabel":{"align":"left"},"paper_bgcolor":"white","plot_bgcolor":"#E5ECF6","polar":{"bgcolor":"#E5ECF6","angularaxis":{"gridcolor":"white","linecolor":"white","ticks":""},"radialaxis":{"gridcolor":"white","linecolor":"white","ticks":""}},"ternary":{"bgcolor":"#E5ECF6","aaxis":{"gridcolor":"white","linecolor":"white","ticks":""},"baxis":{"gridcolor":"white","linecolor":"white","ticks":""},"caxis":{"gridcolor":"white","linecolor":"white","ticks":""}},"coloraxis":{"colorbar":{"outlinewidth":0,"ticks":""}},"colorscale":{"sequential":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"sequentialminus":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"diverging":[[0,"#8e0152"],[0.1,"#c51b7d"],[0.2,"#de77ae"],[0.3,"#f1b6da"],[0.4,"#fde0ef"],[0.5,"#f7f7f7"],[0.6,"#e6f5d0"],[0.7,"#b8e186"],[0.8,"#7fbc41"],[0.9,"#4d9221"],[1,"#276419"]]},"xaxis":{"gridcolor":"white","linecolor":"white","ticks":"","title":{"standoff":15},"zerolinecolor":"white","automargin":true,"zerolinewidth":2},"yaxis":{"gridcolor":"white","linecolor":"white","ticks":"","title":{"standoff":15},"zerolinecolor":"white","automargin":true,"zerolinewidth":2},"scene":{"xaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2},"yaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2},"zaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2}},"shapedefaults":{"line":{"color":"#2a3f5f"}},"annotationdefaults":{"arrowcolor":"#2a3f5f","arrowhead":0,"arrowwidth":1},"geo":{"bgcolor":"white","landcolor":"#E5ECF6","subunitcolor":"white","showland":true,"showlakes":true,"lakecolor":"white"},"title":{"x":0.05}}},"title":{"font":{"size":14,"color":"#0f172a","family":"system-ui, -apple-system, sans-serif"},"text":"\u003cb\u003eMix de Ventas Acumulado por Modelo (2018 - 2023)\u003c\u002fb\u003e","x":0.01,"y":0.98},"font":{"color":"#64748b","family":"system-ui, -apple-system, sans-serif","size":11},"margin":{"l":40,"r":40,"t":55,"b":40},"hoverlabel":{"font":{"size":12,"color":"#0f172a","family":"system-ui, sans-serif"},"bgcolor":"#ffffff","bordercolor":"#e2e8f0"},"autosize":true,"height":400,"paper_bgcolor":"rgba(0,0,0,0)","plot_bgcolor":"rgba(0,0,0,0)","xaxis":{"tickfont":{"color":"#64748b"},"gridcolor":"#e2e8f0","zerolinecolor":"#e2e8f0"},"yaxis":{"tickfont":{"color":"#64748b"},"gridcolor":"#e2e8f0","zerolinecolor":"#e2e8f0"},"showlegend":false},                        {"responsive": true, "displayModeBar": false, "showTips": false}                    )                };            </script>        </div>
+                    </div>
+                    <div class="chart-footer-insight">
+                        <strong>Concentración de Gama:</strong> Forester y la familia XV/Crosstrek representan más del 90% de las ventas de la marca.
+                    </div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-wrapper">
+                        <div style="height:400px; width:100%;">                            <div id="fc2a51d1-753c-4875-b368-a3a1fa3e6e4f" class="plotly-graph-div" style="height:100%; width:100%;"></div>            <script>                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("fc2a51d1-753c-4875-b368-a3a1fa3e6e4f")) {                    Plotly.newPlot(                        "fc2a51d1-753c-4875-b368-a3a1fa3e6e4f",                        [{"hovertemplate":"\u003cb\u003eSUBARU FORESTER CAMIONETA\u003c\u002fb\u003e (%{x})\u003cbr\u003eVentas: %{y:,.0f} uds\u003cextra\u003e\u003c\u002fextra\u003e","line":{"color":"#003399","width":2.5},"marker":{"size":6},"mode":"lines+markers","name":"FORESTER","x":{"dtype":"i2","bdata":"4gfjB+QH5QfmB+cH"},"y":{"dtype":"i2","bdata":"fAChAFQAhgBlAIMA"},"type":"scatter"},{"hovertemplate":"\u003cb\u003eSUBARU XV CAMIONETA\u003c\u002fb\u003e (%{x})\u003cbr\u003eVentas: %{y:,.0f} uds\u003cextra\u003e\u003c\u002fextra\u003e","line":{"color":"#64748b","width":2.5},"marker":{"size":6},"mode":"lines+markers","name":"XV","x":{"dtype":"i2","bdata":"4gfjB+QH5QfmB+cH"},"y":{"dtype":"i1","bdata":"YHFMWC8K"},"type":"scatter"},{"hovertemplate":"\u003cb\u003eSUBARU OUTBACK CAMIONETA\u003c\u002fb\u003e (%{x})\u003cbr\u003eVentas: %{y:,.0f} uds\u003cextra\u003e\u003c\u002fextra\u003e","line":{"color":"#a855f7","width":2.5},"marker":{"size":6},"mode":"lines+markers","name":"OUTBACK","x":{"dtype":"i2","bdata":"4gfjB+QH5QfmB+cH"},"y":{"dtype":"i1","bdata":"GBAGBAQW"},"type":"scatter"},{"hovertemplate":"\u003cb\u003eSUBARU CROSSTREK CAMIONETA\u003c\u002fb\u003e (%{x})\u003cbr\u003eVentas: %{y:,.0f} uds\u003cextra\u003e\u003c\u002fextra\u003e","line":{"color":"#f97316","width":2.5},"marker":{"size":6},"mode":"lines+markers","name":"CROSSTREK","x":{"dtype":"i2","bdata":"4gfjB+QH5QfmB+cH"},"y":{"dtype":"i1","bdata":"AAAAAQE8"},"type":"scatter"},{"hovertemplate":"\u003cb\u003eSUBARU WRX SEDAN\u003c\u002fb\u003e (%{x})\u003cbr\u003eVentas: %{y:,.0f} uds\u003cextra\u003e\u003c\u002fextra\u003e","line":{"color":"#eab308","width":2.5},"marker":{"size":6},"mode":"lines+markers","name":"WRX","x":{"dtype":"i2","bdata":"4gfjB+QH5QfmB+cH"},"y":{"dtype":"i1","bdata":"DwkFBwMF"},"type":"scatter"},{"hovertemplate":"\u003cb\u003eSUBARU EVOLTIS CAMIONETA\u003c\u002fb\u003e (%{x})\u003cbr\u003eVentas: %{y:,.0f} uds\u003cextra\u003e\u003c\u002fextra\u003e","line":{"color":"#ec4899","width":2.5},"marker":{"size":6},"mode":"lines+markers","name":"EVOLTIS","x":{"dtype":"i2","bdata":"4gfjB+QH5QfmB+cH"},"y":{"dtype":"i1","bdata":"AAAAAAAC"},"type":"scatter"},{"hovertemplate":"\u003cb\u003eSUBARU IMPREZA SEDAN\u003c\u002fb\u003e (%{x})\u003cbr\u003eVentas: %{y:,.0f} uds\u003cextra\u003e\u003c\u002fextra\u003e","line":{"color":"#94a3b8","width":2.5},"marker":{"size":6},"mode":"lines+markers","name":"IMPREZA","x":{"dtype":"i2","bdata":"4gfjB+QH5QfmB+cH"},"y":{"dtype":"i1","bdata":"AQAAAAAA"},"type":"scatter"}],                        {"template":{"data":{"histogram2dcontour":[{"type":"histogram2dcontour","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"choropleth":[{"type":"choropleth","colorbar":{"outlinewidth":0,"ticks":""}}],"histogram2d":[{"type":"histogram2d","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"heatmap":[{"type":"heatmap","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"contourcarpet":[{"type":"contourcarpet","colorbar":{"outlinewidth":0,"ticks":""}}],"contour":[{"type":"contour","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"surface":[{"type":"surface","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"mesh3d":[{"type":"mesh3d","colorbar":{"outlinewidth":0,"ticks":""}}],"scatter":[{"fillpattern":{"fillmode":"overlay","size":10,"solidity":0.2},"type":"scatter"}],"parcoords":[{"type":"parcoords","line":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterpolargl":[{"type":"scatterpolargl","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"bar":[{"error_x":{"color":"#2a3f5f"},"error_y":{"color":"#2a3f5f"},"marker":{"line":{"color":"#E5ECF6","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"scattergeo":[{"type":"scattergeo","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterpolar":[{"type":"scatterpolar","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"scattergl":[{"type":"scattergl","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatter3d":[{"type":"scatter3d","line":{"colorbar":{"outlinewidth":0,"ticks":""}},"marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattermap":[{"type":"scattermap","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterternary":[{"type":"scatterternary","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattercarpet":[{"type":"scattercarpet","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"carpet":[{"aaxis":{"endlinecolor":"#2a3f5f","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"#2a3f5f"},"baxis":{"endlinecolor":"#2a3f5f","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"#2a3f5f"},"type":"carpet"}],"table":[{"cells":{"fill":{"color":"#EBF0F8"},"line":{"color":"white"}},"header":{"fill":{"color":"#C8D4E3"},"line":{"color":"white"}},"type":"table"}],"barpolar":[{"marker":{"line":{"color":"#E5ECF6","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"pie":[{"automargin":true,"type":"pie"}]},"layout":{"autotypenumbers":"strict","colorway":["#636efa","#EF553B","#00cc96","#ab63fa","#FFA15A","#19d3f3","#FF6692","#B6E880","#FF97FF","#FECB52"],"font":{"color":"#2a3f5f"},"hovermode":"closest","hoverlabel":{"align":"left"},"paper_bgcolor":"white","plot_bgcolor":"#E5ECF6","polar":{"bgcolor":"#E5ECF6","angularaxis":{"gridcolor":"white","linecolor":"white","ticks":""},"radialaxis":{"gridcolor":"white","linecolor":"white","ticks":""}},"ternary":{"bgcolor":"#E5ECF6","aaxis":{"gridcolor":"white","linecolor":"white","ticks":""},"baxis":{"gridcolor":"white","linecolor":"white","ticks":""},"caxis":{"gridcolor":"white","linecolor":"white","ticks":""}},"coloraxis":{"colorbar":{"outlinewidth":0,"ticks":""}},"colorscale":{"sequential":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"sequentialminus":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"diverging":[[0,"#8e0152"],[0.1,"#c51b7d"],[0.2,"#de77ae"],[0.3,"#f1b6da"],[0.4,"#fde0ef"],[0.5,"#f7f7f7"],[0.6,"#e6f5d0"],[0.7,"#b8e186"],[0.8,"#7fbc41"],[0.9,"#4d9221"],[1,"#276419"]]},"xaxis":{"gridcolor":"white","linecolor":"white","ticks":"","title":{"standoff":15},"zerolinecolor":"white","automargin":true,"zerolinewidth":2},"yaxis":{"gridcolor":"white","linecolor":"white","ticks":"","title":{"standoff":15},"zerolinecolor":"white","automargin":true,"zerolinewidth":2},"scene":{"xaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2},"yaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2},"zaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2}},"shapedefaults":{"line":{"color":"#2a3f5f"}},"annotationdefaults":{"arrowcolor":"#2a3f5f","arrowhead":0,"arrowwidth":1},"geo":{"bgcolor":"white","landcolor":"#E5ECF6","subunitcolor":"white","showland":true,"showlakes":true,"lakecolor":"white"},"title":{"x":0.05}}},"title":{"font":{"size":14,"color":"#0f172a","family":"system-ui, -apple-system, sans-serif"},"text":"\u003cb\u003eTrayectoria Anual por Modelo (Transici\u00f3n XV a Crosstrek)\u003c\u002fb\u003e","x":0.01,"y":0.98},"font":{"color":"#64748b","family":"system-ui, -apple-system, sans-serif","size":11},"margin":{"l":50,"r":30,"t":55,"b":75},"hoverlabel":{"font":{"size":12,"color":"#0f172a","family":"system-ui, sans-serif"},"bgcolor":"#ffffff","bordercolor":"#e2e8f0"},"autosize":true,"height":400,"paper_bgcolor":"rgba(0,0,0,0)","plot_bgcolor":"rgba(0,0,0,0)","xaxis":{"tickfont":{"color":"#64748b"},"gridcolor":"#e2e8f0","zerolinecolor":"#e2e8f0","dtick":1},"yaxis":{"tickfont":{"color":"#64748b"},"gridcolor":"#e2e8f0","zerolinecolor":"#e2e8f0","title":{"text":"Unidades Registradas"}},"legend":{"font":{"size":10,"color":"#0f172a"},"orientation":"h","y":-0.24,"x":0.5,"xanchor":"center"}},                        {"responsive": true, "displayModeBar": false, "showTips": false}                    )                };            </script>        </div>
+                    </div>
+                    <div class="chart-footer-insight">
+                        <strong>Relevo Generacional:</strong> En 2023 Crosstrek asume con éxito la demanda del segmento ante la salida del Subaru XV.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <footer class="app-footer">
+            <p>Dashboard Generado Automáticamente por Pipeline de Datos | Subaru Analysis Project (2018-2023)</p>
+        </footer>
+
+    </main>
+
+    <!-- SCRIPT DE RESIZE Y SMOOTH SCROLL PARA CONTENEDOR INDEPENDIENTE -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 1. Smooth scroll interno en el contenedor principal
+            const links = document.querySelectorAll('.nav-link');
+            const container = document.getElementById('main-container');
+
+            links.forEach(function(link) {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href').substring(1);
+                    const targetElement = document.getElementById(targetId);
+                    if (targetElement) {
+                        targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                });
+            });
+
+            // 2. Resize dinámico de Plotly
+            function resizeAllCharts() {
+                const chartDivs = document.querySelectorAll('.plotly-graph-div');
+                chartDivs.forEach(function(el) {
+                    if (window.Plotly && el) {
+                        Plotly.Plots.resize(el);
+                    }
+                });
+            }
+
+            setTimeout(resizeAllCharts, 250);
+            window.addEventListener('resize', resizeAllCharts);
+        });
+    </script>
+</body>
+</html>
